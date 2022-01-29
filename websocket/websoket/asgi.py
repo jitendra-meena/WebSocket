@@ -14,7 +14,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from core.consumers import  *
 from django.urls import path
 from channels.auth import AuthMiddlewareStack
-
+import core.routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'websoket.settings')
 
@@ -39,12 +39,10 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'websoket.settings')
 application = ProtocolTypeRouter(
     {
         "http": get_asgi_application(),
-        # Just HTTP for now. (We can add other protocols later.)
-        "websocket": (
-            URLRouter([
-                path('ws/test/',TestConsumer.as_asgi()),
-            ])
-        )
+        "websocket":URLRouter(
+                core.routing.websocket_urlpattern
+            )
+        
     }
 )
 

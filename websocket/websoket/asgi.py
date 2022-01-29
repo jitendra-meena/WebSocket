@@ -18,17 +18,36 @@ from channels.auth import AuthMiddlewareStack
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'websoket.settings')
 
-application = get_asgi_application()
+# # application = get_asgi_application()
+# application = ProtocolTypeRouter({
+#     "http": get_asgi_application(),
+#     # Just HTTP for now. (We can add other protocols later.)
+# })
+
+# ws_pattern = [
+#   path('ws/test/',TestConsumer)
+# ]
 
 
-ws_pattern = [
-  path('ws/test/',MyConsumer)
-]
 
-application = ProtocolTypeRouter({
-          'websocket':(URLRouter(ws_pattern)
+# application = ProtocolTypeRouter({
+#           'websocket':(URLRouter(ws_pattern)
+# )
+# })    
+
+
+application = ProtocolTypeRouter(
+    {
+        "http": get_asgi_application(),
+        # Just HTTP for now. (We can add other protocols later.)
+        "websocket": (
+            URLRouter([
+                path('ws/test/',TestConsumer.as_asgi()),
+            ])
+        )
+    }
 )
-})    
+
 
 # application = ProtocolTypeRouter({
     # Django's ASGI application to handle traditional HTTP requests

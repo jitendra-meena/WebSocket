@@ -13,8 +13,8 @@ You can install channels from PyPI as the channels package. See our installation
 #Dependencies
 All Channels projects currently support Python 3.6 and up. channels is compatible with Django 2.2 and 3.2.
 
-Contributing
-To learn more about contributing, please read our contributing docs.
+WebSocket King
+https://websocketking.com/
 
 Maintenance and Security
 To report security issues, please contact security@djangoproject.com. For GPG signatures and more security process information, see https://docs.djangoproject.com/en/dev/internals/security/.

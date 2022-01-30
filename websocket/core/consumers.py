@@ -6,6 +6,8 @@ from channels.consumer import AsyncConsumer,SyncConsumer
 from channels.exceptions import StopConsumer
 from time import sleep
 import asyncio
+
+
 class ChatConsumer(AsyncConsumer):
     async def websocket_connect(self,event):
         print("Websocket Connected....",event)
@@ -13,11 +15,13 @@ class ChatConsumer(AsyncConsumer):
     async def websocket_receive(self,event):
         print("Websocket Received....",event)
         print(event['text'])
-        for i in range(50):
+        l1 = ["Jitendra","Meena","Software Developer","Indore","Hii","Jitendra","How Are You","Hope you doing Well","Good By Jitendra"]
+
+        for i in l1:
             
             await self.send({
             'type':'websocket.send',
-            'message':str(i)
+            'text':str(i)
             
                 })
         await asyncio.sleep(1)    
@@ -30,9 +34,22 @@ class ChatConsumer(AsyncConsumer):
 class ChatSyncConsumer(SyncConsumer):
     def websocket_connect(self,event):
         print("Websocket Connected....",event)
+        print("Channel Layer",self.channel_layer)
+        async_to_sync(self.channel_layer.group_add)('programmer',self.channel_name)
         self.send({'type':'websocket.accept'})
+        print("Channel name",self.channel_name)
     def websocket_receive(self,event):
-        print("Websocket Received....",event)
+        print("Websocket Received....",event['text'])
+        l1 = ["Jitendra","Meena","Software Developer","Indore","Hii","Jitendra","How Are You","Hope you Doing Well","Good By Jitendra"]
+        for i in l1:
+            print(i)
+            self.send({
+            'type':'websocket.send',
+            'text':str(i)
+            
+            })
+            print("It's Working Bro.")
+            sleep(1)
     def websocket_disconnect(self,event):
         print("Websocket Disconnected....",event)
         raise StopConsumer()

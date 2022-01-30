@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Jitendra Details</h2>
+<p>-------------------------------------------------------------</p>
+
+
+
+
+  <h2 id ="Jitendra"></h2>
+  
+
+<p>-------------------------------------------------------------</p>
+
+</body>
+
+<script>
+var ws =  new WebSocket('ws://localhost:8000/wc/chat_sc/')
+ws.onopen = function () {
+  console.log("Websocket Connected Open")
+  ws.send("message from Client's ")
+  console.log("Working Fine! ")
+}
+ws.onmessage = function (event) {
+  console.log("Websocket Recieved  ",event.data);
+  document.getElementById("Jitendra").innerText= event.data;
+}
+ws.onerror = function () {
+  console.log("Websocket websocket Error ");
+}    
+
+ws.onclose = function () {
+  console.log("Websockte close ",event);
+}
+</script>
+
+</html>

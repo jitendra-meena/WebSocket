@@ -8,6 +8,8 @@ from time import sleep
 import asyncio
 
 
+
+
 class ChatConsumer(AsyncConsumer):
     async def websocket_connect(self,event):
         print("Websocket Connected....",event)
@@ -54,15 +56,17 @@ class ChatSyncConsumer(SyncConsumer):
         print("Websocket Disconnected....",event)
         raise StopConsumer()
 
+
+
 # class TestConsumer(WebsocketConsumer):
-  
-#     def connect(self):
+  #     def connect(self):
 #         self.room_name="test_consumer"
 #         self.room_group_name="test_consumer_group"
 #         channel_layer = get_channel_layer()
 #         async_to_sync(channel_layer.group_add)(self.room_name,self.room_group_name)
 #         self.accept()
 #         # self.send(test_data=json.dumps({'status':'connected'}))  
+
         
         
 

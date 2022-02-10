@@ -149,7 +149,9 @@ class TestConsumer(WebsocketConsumer):
 class PersonalChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         my_id = self.scope['user'].id
+        print("Here",my_id)
         other_user_id = self.scope['url_route']['kwargs']['id']
+        print(other_user_id)
         if int(my_id) > int(other_user_id):
             self.room_name = f'{my_id}-{other_user_id}'
         else:

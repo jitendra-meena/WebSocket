@@ -8,6 +8,7 @@ https://docs.djangoproject.com/en/3.2/howto/deployment/asgi/
 """
 
 import os
+from channels.security.websocket import AllowedHostsOriginValidator
 
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
@@ -18,7 +19,21 @@ import core.routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'websoket.settings')
 
-# # application = get_asgi_application()
+
+
+
+application = ProtocolTypeRouter({
+    'websocket': AllowedHostsOriginValidator(
+        AuthMiddlewareStack(
+            URLRouter([
+                    path('ws/<int:id>/', PersonalChatConsumer)
+                   
+            ])
+        )
+    ),
+})
+
+# application = get_asgi_application()
 # application = ProtocolTypeRouter({
 #     "http": get_asgi_application(),
 #     # Just HTTP for now. (We can add other protocols later.)
@@ -36,27 +51,23 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'websoket.settings')
 # })    
 
 
-application = ProtocolTypeRouter(
-    {
-        "http": get_asgi_application(),
-        "websocket":URLRouter(
-                core.routing.websocket_urlpattern
-            )
+# application = ProtocolTypeRouter(
+#     {
+#         "http": get_asgi_application(),
+#         "websocket":URLRouter(
+#                 core.routing.websocket_urlpattern
+#             )
         
-    }
-)
+#     }
+# )
+
 
 
 # application = ProtocolTypeRouter({
-    # Django's ASGI application to handle traditional HTTP requests
-
-    # WebSocket chat handler
-#     "websocket": AuthMiddlewareStack(
+#     'websocket': AuthMiddlewareStack(
 #         URLRouter([
-#             url(r"^chat/admin/$", AdminChatConsumer.as_asgi()),
-#             url(r"^chat/$", PublicChatConsumer.as_asgi()),
+#             path('ws/<int:id>/', PersonalChatConsumer)
 #         ])
-#     ),
+#     )
 # })
-
 

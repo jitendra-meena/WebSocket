@@ -7,7 +7,6 @@ from django.contrib.auth.models import User
 
 class Register(View):
     def get(self,request):
-        form = SignUpForm()
         return render(request,'accounts/register.html')
     
     def post(self,request):

@@ -7,18 +7,75 @@ from channels.exceptions import StopConsumer
 from time import sleep
 from channels.db import database_sync_to_async
 from .models import ChatModel
-
-
 from .models import ChatModel
+
+
 class ChatOneToOneConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         me = self.scope['user'].id
+        print("Here",me)
         friend = self.scope['url_route']['kwargs']['id']
+        print(friend)
+        if int(me) > int(friend):
+            self.room_name = f'{me}-{friend}'
+        else:
+            self.room_name = f'{friend}-{me}'
+
+        self.room_group_name = 'chat_%s' % self.room_name
+
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
+
+        await self.accept()
+
+    async def receive(self, text_data=None, bytes_data=None):
+        data = json.loads(text_data)
+        message = data['message']
+        username = data['username']
+
+        await self.save_message(username, self.room_group_name, message)
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'chat_message',
+                'message': message,
+                'username': username,
+            }
+        )
+
+    async def chat_message(self, event):
+        message = event['message']
+        username = event['username']
+
+        await self.send(text_data=json.dumps({
+            'message': message,
+            'username': username
+        }))
+
+    async def disconnect(self, code):
+        self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
+
+    @database_sync_to_async
+    def save_message(self, username, thread_name, message):
+        ChatModel.objects.create(
+            sender=username, message=message, thread_name=thread_name)
+        
+class ChatOneToOneConsumer3(AsyncWebsocketConsumer):
+    async def connect(self):
+        me = self.scope['user'].id
+        print("Here me",me)
+        friend = self.scope['url_route']['kwargs']['id']
+        print("Dost-",friend)
         print("Web Socket Connection Stebliesd")
         if int(me)>int(friend):
-            self.room_name = f'{me}'-'{friend}'
+            self.room_name = f'{me}-{friend}'
         else:
-            self.room_name = f'{friend}'-'{me}'
+            self.room_name = f'{friend}-{me}'
         self.room_group_name = 'chat_%s' % self.room_name
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -26,20 +83,21 @@ class ChatOneToOneConsumer(AsyncWebsocketConsumer):
         )
         await self.accept()
         
-        async def receiver(self,text_data=None,bytes_data=None):
-            data = json.load(text_data)
-            message =  data['message']
-            username = data['username']
-            await self.save_message(username,self.room_group_add,message)
-            await self.channel_layer.group_add(
-                self.room_group_name,{
-                    'type':'chat_message',
-                    'username':username,
-                    'message':message
-                    
-                }
-            )
-        async def chat(self,event):
+        async def receive(self, text_data=None, bytes_data=None):
+                data = json.loads(text_data)
+                message = data['message']
+                username = data['username']
+
+        await self.save_message(username, self.room_group_name, message)
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'chat_message',
+                'message': message,
+                'username': username,
+            }
+        )
+        async def chat_message(self,event):
             username = event['username']
             message = event['message']
             await self.send(text_data = json.dumps({
@@ -56,17 +114,6 @@ class ChatOneToOneConsumer(AsyncWebsocketConsumer):
         def save_message(self,username,message,thread_name):
             ChatModel.objects.create(sender=username,message=message,thread_name=thread_name)
                 
-   
-    
-               
-
-
-
-
-
-
-
-
 class ChatConsumer(AsyncConsumer):
     async def websocket_connect(self,event):
         print("Websocket Connected....",event)
@@ -123,14 +170,6 @@ class TestConsumer(WebsocketConsumer):
         async_to_sync(channel_layer.group_add)(self.room_name,self.room_group_name)
         self.accept()
         # self.send(test_data=json.dumps({'status':'connected'}))  
-
-
-
-
-        
-        
-
-       
     
     def receive(self, text_data=None, bytes_data=None):
         # self.send(text_data="Hello world!")
@@ -145,58 +184,3 @@ class TestConsumer(WebsocketConsumer):
         pass
 
 
-
-class PersonalChatConsumer(AsyncWebsocketConsumer):
-    async def connect(self):
-        my_id = self.scope['user'].id
-        print("Here",my_id)
-        other_user_id = self.scope['url_route']['kwargs']['id']
-        print(other_user_id)
-        if int(my_id) > int(other_user_id):
-            self.room_name = f'{my_id}-{other_user_id}'
-        else:
-            self.room_name = f'{other_user_id}-{my_id}'
-
-        self.room_group_name = 'chat_%s' % self.room_name
-
-        await self.channel_layer.group_add(
-            self.room_group_name,
-            self.channel_name
-        )
-
-        await self.accept()
-
-    async def receive(self, text_data=None, bytes_data=None):
-        data = json.loads(text_data)
-        message = data['message']
-        username = data['username']
-
-        await self.save_message(username, self.room_group_name, message)
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'chat_message',
-                'message': message,
-                'username': username,
-            }
-        )
-
-    async def chat_message(self, event):
-        message = event['message']
-        username = event['username']
-
-        await self.send(text_data=json.dumps({
-            'message': message,
-            'username': username
-        }))
-
-    async def disconnect(self, code):
-        self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name
-        )
-
-    @database_sync_to_async
-    def save_message(self, username, thread_name, message):
-        ChatModel.objects.create(
-            sender=username, message=message, thread_name=thread_name)

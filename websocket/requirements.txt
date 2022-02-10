@@ -5,7 +5,7 @@ attrs==21.4.0
 autobahn==22.1.1
 Automat==20.2.0
 cffi==1.15.0
-channels==2.4.0
+channels==2.4.0            
 channels-redis==3.3.1
 constantly==15.1.0
 cryptography==36.0.1
